@@ -43,7 +43,7 @@ function extend(type, protocol, impls) {
 var Ord = Protocol({
     lt: function(a, b) { return Ord.compare(a, b) < 0; },
     gt: function(a, b) { return Ord.compare(a, b) > 0; },
-    eq: function(a, b) { return Ord.campare(a, b) === 0; },
+    eq: function(a, b) { return Ord.compare(a, b) === 0; },
     gte: function(a, b) { return Ord.gt(a, b) || Ord.eq(a, b); },
     compare: false
 });
