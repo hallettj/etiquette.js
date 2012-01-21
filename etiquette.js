@@ -1,6 +1,7 @@
 function Protocol(signatures) {
-    var proxies = {};
     var impls = {};  // { Type: Function }
+
+    var instance = this instanceof Protocol ? this : Object.create(Protocol.prototype);
 
     function findImpl(object) {
         var constructor = object.constructor;
@@ -13,21 +14,27 @@ function Protocol(signatures) {
     }
 
     Object.keys(signatures).forEach(function(funcName) {
-        proxies[signatures[funcName]] = function(object) {
+        instance[funcName] = function(object) {
             var impl = findImpl(object);
             var func = impl[funcName];
 
             if (func) {
                 return func.apply(null, arguments);
+            } else if (typeof signatures[funcName] === 'function') {
+                return signatures[funcName].apply(null, arguments);
             } else {
-                return signatures[funcName]
+                throw "no implementation for '"+ funcName +"'";
             }
         };
     });
+
+    instance.impls = impls;
+
+    return instance;
 }
 
 function extend(type, protocol, impls) {
-    protocol.types[type] = impls;
+    protocol.impls[type] = impls;
 }
 
 
@@ -35,7 +42,7 @@ function extend(type, protocol, impls) {
 
 var Ord = Protocol({
     lt: function(a, b) { return Ord.compare(a, b) < 0; },
-    gt: function(a, b) { return Ord.compore(a, b) > 0; },
+    gt: function(a, b) { return Ord.compare(a, b) > 0; },
     eq: function(a, b) { return Ord.campare(a, b) === 0; },
     gte: function(a, b) { return Ord.gt(a, b) || Ord.eq(a, b); },
     compare: false
